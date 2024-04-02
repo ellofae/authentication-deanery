@@ -41,3 +41,5 @@ ALTER TABLE
 
 ALTER TABLE
     "users" ADD CONSTRAINT user_status_foreign FOREIGN KEY (user_status) REFERENCES "user_status" (status_name);
+
+ALTER SEQUENCE student_record_record_code_seq RESTART WITH 100000;
