@@ -1,21 +1,26 @@
-CREATE TABLE IF NOT EXISTS "user"(
+CREATE TABLE IF NOT EXISTS "users"(
     id SERIAL PRIMARY KEY,
-    name TEXT NOT NULL,
-    status TEXT NOT NULL,
+    user_name TEXT NOT NULL,
+    user_status TEXT NOT NULL,
     credentials INT NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS "status"(
+CREATE TABLE IF NOT EXISTS "user_status"(
     status_name TEXT PRIMARY KEY,
     description TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS "student_record"(
+    record_code SERIAL PRIMARY KEY,
+    phone TEXT NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS "credentials"(
     id SERIAL PRIMARY KEY,
     email TEXT NOT NULL,
     phone TEXT NOT NULL,
-    record_code INT NOT NULL,
-    password TEXT NOT NULL,
+    record_code INT,
+    user_password TEXT,
     register_date TIMESTAMP NOT NULL
 );
 
@@ -26,10 +31,13 @@ ALTER TABLE
     "credentials" ADD CONSTRAINT credentials_phone_unique UNIQUE(phone);
 
 ALTER TABLE
+    "student_record" ADD CONSTRAINT student_record_phone_unique UNIQUE(phone);
+
+ALTER TABLE
     "credentials" ADD CONSTRAINT credentials_record_code_unique UNIQUE(record_code);
 
 ALTER TABLE
-    "user" ADD CONSTRAINT user_credentials_foreign FOREIGN KEY (credentials) REFERENCES "credentials" (id);
+    "users" ADD CONSTRAINT user_credentials_foreign FOREIGN KEY (credentials) REFERENCES "credentials" (id);
 
 ALTER TABLE
-    "user" ADD CONSTRAINT user_status_foreign FOREIGN KEY (status) REFERENCES "status" (status_name);
+    "users" ADD CONSTRAINT user_status_foreign FOREIGN KEY (user_status) REFERENCES "user_status" (status_name);
