@@ -1,0 +1,3 @@
+DROP TABLE IF EXISTS "user";
+DROP TABLE IF EXISTS "status";
+DROP TABLE IF EXISTS "credentials";
