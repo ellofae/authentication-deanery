@@ -1,5 +1,9 @@
 # authentication-deanery
 
+TODO: 05.04.2024
+
+* Необходимо добавить возможность различного доступа для разных ролей (Encoding Role in JWT for example) => какие-либо различия между преподавателем и студентом (в основном - доступ и различный функционал).
+
 ## configuration file example
 
 ```
@@ -21,4 +25,7 @@ UserService:
 Encryption:
   passwordLength: '14'
   aesEncryptionKey: 'supersecretaesencryptionkeyhashd'
+
+Authentication:
+  jwtSecretToken: 'secret'
 ```
