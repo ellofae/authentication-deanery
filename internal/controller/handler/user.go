@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strings"
 
 	"github.com/ellofae/authentication-deanery/internal/controller"
 	"github.com/ellofae/authentication-deanery/internal/domain"
@@ -26,21 +27,25 @@ func NewUserHandler(userUsecase domain.IUserUsecase) controller.IHandler {
 }
 
 func (h *UserHandler) RegisterHandlers(mux *http.ServeMux) {
-	// endpoint /users
-	mux.HandleFunc("/users", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/users/", func(w http.ResponseWriter, r *http.Request) {
 		var err error
+
+		parsed_url := strings.TrimPrefix(r.URL.Path, "/users/")
+		url_parts := strings.Split(parsed_url, "/")
 
 		switch r.Method {
 		case http.MethodPost:
-			err = h.handleUserCreation(w, r)
-			if err != nil {
-				http.Error(w, fmt.Sprintf("Unable to create a user. Error: %v.\n", err.Error()), http.StatusInternalServerError)
-				return
+			// endpoint /users/signup
+			if len(url_parts) == 1 && url_parts[0] == "signup" {
+				err = h.handleUserCreation(w, r)
+				if err != nil {
+					http.Error(w, fmt.Sprintf("Unable to create a user. Error: %v.\n", err.Error()), http.StatusInternalServerError)
+					return
+				}
 			}
-		default:
-			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-			return
 		}
+
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 	})
 
 }
