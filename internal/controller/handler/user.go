@@ -114,12 +114,17 @@ func (h *UserHandler) handleUserLogin(w http.ResponseWriter, r *http.Request) er
 		return err
 	}
 
-	access_token, err := h.usecase.UserLogin(user)
+	tokens, err := h.usecase.UserLogin(user)
+	if err != nil {
+		return err
+	}
+
+	json_data, err := json.Marshal(tokens)
 	if err != nil {
 		return err
 	}
 
 	w.WriteHeader(http.StatusCreated)
-	w.Write([]byte(access_token))
+	w.Write(json_data)
 	return nil
 }

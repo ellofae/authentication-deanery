@@ -101,7 +101,7 @@ func (u *UserUsecase) SetEncryptedPassword(credentials_id int) (string, error) {
 	return generated_password, nil
 }
 
-func (u *UserUsecase) UserLogin(user *dto.UserLogin) (string, error) {
+func (u *UserUsecase) UserLogin(user *dto.UserLogin) (*models.Tokens, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*2)
 	defer cancel()
 
@@ -114,7 +114,7 @@ func (u *UserUsecase) UserLogin(user *dto.UserLogin) (string, error) {
 			u.logger.Printf("User registration model validation error. Error: %v.\n", error)
 		}
 
-		return "", err
+		return nil, err
 	}
 
 	var stored_password []byte
@@ -129,27 +129,29 @@ func (u *UserUsecase) UserLogin(user *dto.UserLogin) (string, error) {
 
 	select {
 	case <-ctx.Done():
-		return "", ctx.Err()
+		return nil, ctx.Err()
 	case err := <-errChan:
 		if err != nil {
 			u.logger.Printf("An error occured in repository while creating user. Error: %v.\n", err.Error())
-			return "", err
+			return nil, err
 		}
 	}
 
 	compareResult, err := utils.ComparePasswords(user.Password, string(stored_password), u.cfgUsecase.AesEncryptionKey)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
 	if !compareResult {
-		return "", fmt.Errorf("wrong password for the passed record code")
+		return nil, fmt.Errorf("wrong password for the passed record code")
 	}
 
 	accessToken, err := middleware.GenerateAccessToken(user.RecordCode)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
-	return accessToken, nil
+	return &models.Tokens{
+		AccessToken: accessToken,
+	}, nil
 }
