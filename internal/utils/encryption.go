@@ -4,34 +4,45 @@ import (
 	"crypto/aes"
 	"crypto/cipher"
 	"crypto/rand"
+	"encoding/base64"
 	"fmt"
 	"io"
 )
 
-// Encrypt encrypts a string using AES-GCM encryption
-func Encrypt(plaintext, key []byte) ([]byte, error) {
+// Encrypt encrypts a string using AES-GCM encryption and returns the base64 encoded ciphertext
+func Encrypt(plaintext, key []byte) (string, error) {
 	block, err := aes.NewCipher(key)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 
 	gcm, err := cipher.NewGCM(block)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 
 	nonce := make([]byte, gcm.NonceSize())
 	if _, err := io.ReadFull(rand.Reader, nonce); err != nil {
-		return nil, err
+		return "", err
 	}
 
 	ciphertext := gcm.Seal(nil, nonce, plaintext, nil)
 	ciphertext = append(nonce, ciphertext...)
-	return ciphertext, nil
+
+	// Encode the ciphertext to base64
+	encodedCiphertext := base64.StdEncoding.EncodeToString(ciphertext)
+
+	return encodedCiphertext, nil
 }
 
-// Decrypt decrypts an AES-GCM encrypted byte slice
-func Decrypt(ciphertext, key []byte) ([]byte, error) {
+// Decrypt decrypts an AES-GCM encrypted byte slice previously encoded in base64
+func Decrypt(encodedCiphertext string, key []byte) ([]byte, error) {
+	// Decode the base64 encoded ciphertext
+	ciphertext, err := base64.StdEncoding.DecodeString(encodedCiphertext)
+	if err != nil {
+		return nil, err
+	}
+
 	block, err := aes.NewCipher(key)
 	if err != nil {
 		return nil, err

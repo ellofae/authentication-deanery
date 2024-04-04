@@ -30,6 +30,7 @@ type Config struct {
 	} `yaml:"UserService"`
 
 	Encryption struct {
+		PasswordLength   string `yaml:"passwordLength"`
 		AesEncryptionKey string `yaml:"aesEncryptionKey"`
 	} `yaml:"Encryption"`
 }

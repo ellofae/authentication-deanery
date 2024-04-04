@@ -50,7 +50,7 @@ BEGIN
         RAISE EXCEPTION 'Relation user is not present.';
     END IF;
 
-    result_json = json_build_object('user_name', display_name, 'phone', phone_number, 'email', email_arg, 'user_status', status_arg, 'register_date', current_datetime::text);
+    result_json = json_build_object('user_name', display_name, 'phone', phone_number, 'email', email_arg, 'credentials', credentials_id, 'user_status', status_arg, 'register_date', current_datetime::text);
     RETURN result_json;
 END;
 $$;

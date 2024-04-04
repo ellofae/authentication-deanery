@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
@@ -50,7 +51,7 @@ func (h *UserHandler) handleUserCreation(w http.ResponseWriter, r *http.Request)
 	var err error
 
 	user := &dto.UserRegistration{}
-	if err = utils.StructDecode(r, user); err != nil {
+	if err = utils.RequestDecode(r, user); err != nil {
 		return err
 	}
 
@@ -59,7 +60,22 @@ func (h *UserHandler) handleUserCreation(w http.ResponseWriter, r *http.Request)
 		return err
 	}
 
+	createdUser := &dto.UserCreated{}
+	if err = json.Unmarshal(json_data, createdUser); err != nil {
+		return err
+	}
+	generatedPassword, err := h.usecase.SetEncryptedPassword(createdUser.Credentials)
+	if err != nil {
+		return err
+	}
+	createdUser.Password = generatedPassword
+
+	created_user_data, err := json.Marshal(createdUser)
+	if err != nil {
+		return err
+	}
+
 	w.WriteHeader(http.StatusCreated)
-	w.Write(json_data)
+	w.Write(created_user_data)
 	return nil
 }

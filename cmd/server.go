@@ -13,15 +13,37 @@ import (
 	"github.com/ellofae/authentication-deanery/internal/controller/middleware"
 	"github.com/ellofae/authentication-deanery/internal/database/repository"
 	"github.com/ellofae/authentication-deanery/internal/domain/usecase"
+	"github.com/ellofae/authentication-deanery/internal/models"
 	"github.com/ellofae/authentication-deanery/migrations/initialization"
 	"github.com/ellofae/authentication-deanery/pkg/logger"
 	"github.com/ellofae/authentication-deanery/pkg/postgres"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-func establishHandlers(mux *http.ServeMux, connPool *pgxpool.Pool) {
+func castPasswordLengthCgfTypes(cfg_str string) uint8 {
+	logger := logger.GetLogger()
+
+	num, err := strconv.ParseUint(cfg_str, 10, 8)
+	if err != nil {
+		logger.Printf("Unable to parse the config password length value to a numeric representation, error: %v\n", err)
+		os.Exit(1)
+	}
+
+	if num > 255 {
+		logger.Printf("Config password length value must be of type uint8, error: %v\n", err)
+		os.Exit(1)
+	}
+
+	return uint8(num)
+}
+
+func establishHandlers(mux *http.ServeMux, connPool *pgxpool.Pool, cfg *config.Config) {
+
 	user_repository := repository.NewUserRepository(connPool)
-	user_usecase := usecase.NewUserUsecase(user_repository)
+	user_usecase := usecase.NewUserUsecase(user_repository, &models.CfgUsecaseData{
+		PasswordLength:   castPasswordLengthCgfTypes(cfg.Encryption.PasswordLength),
+		AesEncryptionKey: cfg.Encryption.AesEncryptionKey,
+	})
 	user_handler := handler.NewUserHandler(user_usecase)
 
 	user_handler.RegisterHandlers(mux)
@@ -49,7 +71,7 @@ func main() {
 	writeTimeout, _ := strconv.Atoi(cfg.UserService.WriteTimeout)
 
 	serveMux := http.NewServeMux()
-	establishHandlers(serveMux, connPool)
+	establishHandlers(serveMux, connPool, cfg)
 
 	srv := &http.Server{
 		Addr:         cfg.UserService.BindAddr,

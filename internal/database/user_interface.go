@@ -8,4 +8,5 @@ import (
 
 type IUserRepository interface {
 	CreateUser(context.Context, *dto.UserRegistration) ([]byte, error)
+	SetEncryptedPassword(context.Context, int, string) error
 }

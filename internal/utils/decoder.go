@@ -7,7 +7,7 @@ import (
 	"github.com/ellofae/authentication-deanery/pkg/logger"
 )
 
-func StructDecode(r *http.Request, req interface{}) error {
+func RequestDecode(r *http.Request, req interface{}) error {
 	logger := logger.GetLogger()
 
 	if err := json.NewDecoder(r.Body).Decode(req); err != nil {
