@@ -11,6 +11,10 @@ import (
 	"github.com/ellofae/authentication-deanery/pkg/logger"
 )
 
+const (
+	PASSWORD_LENGTH = 14
+)
+
 type UserUsecase struct {
 	logger *log.Logger
 	repo   database.IUserRepository
@@ -58,6 +62,13 @@ func (u *UserUsecase) CreateUser(user *dto.UserRegistration) ([]byte, error) {
 			return nil, err
 		}
 	}
+
+	// generated_password := utils.GenerateRandomPassword(PASSWORD_LENGTH)
+	// encryptedPassword, err := utils.Encrypt([]byte(generated_password), []byte("passphrasewhichneedstobe32bytes2"))
+	// if err != nil {
+	// 	u.logger.Printf("Unable to enctype the generated password, error: %v\n", err)
+	// 	return []byte{}, err
+	// }
 
 	return json_data, nil
 }

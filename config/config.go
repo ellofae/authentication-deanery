@@ -28,6 +28,10 @@ type Config struct {
 		WriteTimeout string `yaml:"writeTimeout"`
 		IdleTimeout  string `yaml:"idleTimeout"`
 	} `yaml:"UserService"`
+
+	Encryption struct {
+		AesEncryptionKey string `yaml:"aesEncryptionKey"`
+	} `yaml:"Encryption"`
 }
 
 func ConfigureViper() *viper.Viper {

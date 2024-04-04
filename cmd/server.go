@@ -9,7 +9,10 @@ import (
 	"time"
 
 	"github.com/ellofae/authentication-deanery/config"
+	"github.com/ellofae/authentication-deanery/internal/controller/handler"
 	"github.com/ellofae/authentication-deanery/internal/controller/middleware"
+	"github.com/ellofae/authentication-deanery/internal/database/repository"
+	"github.com/ellofae/authentication-deanery/internal/domain/usecase"
 	"github.com/ellofae/authentication-deanery/migrations/initialization"
 	"github.com/ellofae/authentication-deanery/pkg/logger"
 	"github.com/ellofae/authentication-deanery/pkg/postgres"
@@ -17,7 +20,11 @@ import (
 )
 
 func establishHandlers(mux *http.ServeMux, connPool *pgxpool.Pool) {
+	user_repository := repository.NewUserRepository(connPool)
+	user_usecase := usecase.NewUserUsecase(user_repository)
+	user_handler := handler.NewUserHandler(user_usecase)
 
+	user_handler.RegisterHandlers(mux)
 }
 
 func main() {

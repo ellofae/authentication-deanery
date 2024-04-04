@@ -31,7 +31,7 @@ func (r *UserRepository) CreateUser(ctx context.Context, user *dto.UserRegistrat
 	defer conn.Release()
 
 	var data []byte
-	err = conn.QueryRow(ctx, "SELECT create_user($1, $2, $3)", user.DisplayName, user.Email, user.Phone, user.UserStatus).Scan(&data)
+	err = conn.QueryRow(ctx, "SELECT create_user($1, $2, $3, $4)", user.DisplayName, user.Email, user.Phone, user.UserStatus).Scan(&data)
 	if err != nil {
 		return nil, err
 	}
