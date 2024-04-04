@@ -42,6 +42,16 @@ func (h *UserHandler) RegisterHandlers(mux *http.ServeMux) {
 					http.Error(w, fmt.Sprintf("Unable to create a user. Error: %v.\n", err.Error()), http.StatusInternalServerError)
 					return
 				}
+
+				return
+			} else if len(url_parts) == 1 && url_parts[0] == "login" {
+				// err = h.handleUserLogin(w, r)
+				// if err != nil {
+				// 	http.Error(w, fmt.Sprintf("Unable to login a user. Error: %v.\n", err.Error()), http.StatusInternalServerError)
+				// 	return
+				// }
+
+				return
 			}
 		}
 
@@ -75,12 +85,41 @@ func (h *UserHandler) handleUserCreation(w http.ResponseWriter, r *http.Request)
 	}
 	createdUser.Password = generatedPassword
 
-	created_user_data, err := json.Marshal(createdUser)
+	response := &dto.UserCreatedResponse{
+		UserName:   createdUser.UserName,
+		Email:      createdUser.Email,
+		Phone:      createdUser.Phone,
+		RecordCode: createdUser.RecordCode,
+		Password:   createdUser.Password,
+		UserStatus: createdUser.UserStatus,
+	}
+
+	response_json, err := json.Marshal(response)
 	if err != nil {
 		return err
 	}
 
 	w.WriteHeader(http.StatusCreated)
-	w.Write(created_user_data)
+	w.Write(response_json)
 	return nil
 }
+
+// func (h *UserHandler) handleUserLogin(w http.ResponseWriter, r *http.Request) error {
+// 	w.Header().Add("Content-Type", "application/json")
+
+// 	var err error
+
+// 	user := &dto.UserLogin{}
+// 	if err = utils.RequestDecode(r, user); err != nil {
+// 		return err
+// 	}
+
+// 	json_data, err := h.usecase.UserLogin(user)
+// 	if err != nil {
+// 		return err
+// 	}
+
+// 	w.WriteHeader(http.StatusCreated)
+// 	w.Write(json_data)
+// 	return nil
+// }
