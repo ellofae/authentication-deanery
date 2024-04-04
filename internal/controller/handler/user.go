@@ -45,11 +45,11 @@ func (h *UserHandler) RegisterHandlers(mux *http.ServeMux) {
 
 				return
 			} else if len(url_parts) == 1 && url_parts[0] == "login" {
-				// err = h.handleUserLogin(w, r)
-				// if err != nil {
-				// 	http.Error(w, fmt.Sprintf("Unable to login a user. Error: %v.\n", err.Error()), http.StatusInternalServerError)
-				// 	return
-				// }
+				err = h.handleUserLogin(w, r)
+				if err != nil {
+					http.Error(w, fmt.Sprintf("Unable to login a user. Error: %v.\n", err.Error()), http.StatusInternalServerError)
+					return
+				}
 
 				return
 			}
@@ -104,22 +104,22 @@ func (h *UserHandler) handleUserCreation(w http.ResponseWriter, r *http.Request)
 	return nil
 }
 
-// func (h *UserHandler) handleUserLogin(w http.ResponseWriter, r *http.Request) error {
-// 	w.Header().Add("Content-Type", "application/json")
+func (h *UserHandler) handleUserLogin(w http.ResponseWriter, r *http.Request) error {
+	w.Header().Add("Content-Type", "application/json")
 
-// 	var err error
+	var err error
 
-// 	user := &dto.UserLogin{}
-// 	if err = utils.RequestDecode(r, user); err != nil {
-// 		return err
-// 	}
+	user := &dto.UserLogin{}
+	if err = utils.RequestDecode(r, user); err != nil {
+		return err
+	}
 
-// 	json_data, err := h.usecase.UserLogin(user)
-// 	if err != nil {
-// 		return err
-// 	}
+	access_token, err := h.usecase.UserLogin(user)
+	if err != nil {
+		return err
+	}
 
-// 	w.WriteHeader(http.StatusCreated)
-// 	w.Write(json_data)
-// 	return nil
-// }
+	w.WriteHeader(http.StatusCreated)
+	w.Write([]byte(access_token))
+	return nil
+}

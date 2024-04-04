@@ -33,6 +33,10 @@ type Config struct {
 		PasswordLength   string `yaml:"passwordLength"`
 		AesEncryptionKey string `yaml:"aesEncryptionKey"`
 	} `yaml:"Encryption"`
+
+	Authentication struct {
+		JWTSecretKey string `yaml:"jwtSecretKey"`
+	} `yaml:"Authentication"`
 }
 
 func ConfigureViper() *viper.Viper {

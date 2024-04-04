@@ -66,3 +66,19 @@ func Decrypt(encodedCiphertext string, key []byte) ([]byte, error) {
 
 	return plaintext, nil
 }
+
+func ComparePasswords(passedPassword string, encryptedPassword string, key string) (bool, error) {
+	// Decrypt the ciphertext
+	decryptedStoredPassword, err := Decrypt(string(encryptedPassword), []byte(key))
+	if err != nil {
+		return false, fmt.Errorf("error decrypting ciphertext: %v", err)
+	}
+
+	// Compare the decrypted password with the passed password
+	if string(decryptedStoredPassword) == passedPassword {
+		return true, nil
+	}
+
+	return false, nil
+
+}

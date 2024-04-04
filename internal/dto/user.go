@@ -28,4 +28,6 @@ type UserCreatedResponse struct {
 }
 
 type UserLogin struct {
+	RecordCode int    `json:"record_code"`
+	Password   string `json:"password"`
 }

@@ -2,9 +2,11 @@ package usecase
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"time"
 
+	"github.com/ellofae/authentication-deanery/internal/controller/middleware"
 	"github.com/ellofae/authentication-deanery/internal/database"
 	"github.com/ellofae/authentication-deanery/internal/dto"
 	"github.com/ellofae/authentication-deanery/internal/models"
@@ -97,4 +99,57 @@ func (u *UserUsecase) SetEncryptedPassword(credentials_id int) (string, error) {
 	}
 
 	return generated_password, nil
+}
+
+func (u *UserUsecase) UserLogin(user *dto.UserLogin) (string, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*2)
+	defer cancel()
+
+	var err error
+
+	validate := utils.NewValidator()
+	if err = validate.Struct(user); err != nil {
+		validation_errors := utils.ValidatorErrors(err)
+		for _, error := range validation_errors {
+			u.logger.Printf("User registration model validation error. Error: %v.\n", error)
+		}
+
+		return "", err
+	}
+
+	var stored_password []byte
+
+	errChan := make(chan error, 1)
+	defer close(errChan)
+
+	go func() {
+		stored_password, err = u.repo.GetPasswordByRecordCode(ctx, user.RecordCode)
+		errChan <- err
+	}()
+
+	select {
+	case <-ctx.Done():
+		return "", ctx.Err()
+	case err := <-errChan:
+		if err != nil {
+			u.logger.Printf("An error occured in repository while creating user. Error: %v.\n", err.Error())
+			return "", err
+		}
+	}
+
+	compareResult, err := utils.ComparePasswords(user.Password, string(stored_password), u.cfgUsecase.AesEncryptionKey)
+	if err != nil {
+		return "", err
+	}
+
+	if !compareResult {
+		return "", fmt.Errorf("wrong password for the passed record code")
+	}
+
+	accessToken, err := middleware.GenerateAccessToken(user.RecordCode)
+	if err != nil {
+		return "", err
+	}
+
+	return accessToken, nil
 }

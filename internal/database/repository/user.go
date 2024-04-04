@@ -54,3 +54,20 @@ func (r *UserRepository) SetEncryptedPassword(ctx context.Context, credentials_i
 
 	return nil
 }
+
+func (r *UserRepository) GetPasswordByRecordCode(ctx context.Context, record_code int) ([]byte, error) {
+	conn, err := r.pool.Acquire(ctx)
+	if err != nil {
+		r.logger.Printf("Error acquiring connection. Error: %v.\n", err.Error())
+		return nil, err
+	}
+	defer conn.Release()
+
+	var data []byte
+	err = conn.QueryRow(ctx, "SELECT get_user_password($1)", record_code).Scan(&data)
+	if err != nil {
+		return nil, err
+	}
+
+	return data, nil
+}
