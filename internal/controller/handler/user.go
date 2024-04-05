@@ -27,15 +27,15 @@ func NewUserHandler(userUsecase domain.IUserUsecase) controller.IHandler {
 }
 
 func (h *UserHandler) RegisterHandlers(mux *http.ServeMux) {
-	mux.HandleFunc("/users/", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/api/", func(w http.ResponseWriter, r *http.Request) {
 		var err error
 
-		parsed_url := strings.TrimPrefix(r.URL.Path, "/users/")
+		parsed_url := strings.TrimPrefix(r.URL.Path, "/api/")
 		url_parts := strings.Split(parsed_url, "/")
 
 		switch r.Method {
 		case http.MethodPost:
-			// endpoint /users/signup
+			// endpoint /api/signup
 			if len(url_parts) == 1 && url_parts[0] == "signup" {
 				err = h.handleUserCreation(w, r)
 				if err != nil {
