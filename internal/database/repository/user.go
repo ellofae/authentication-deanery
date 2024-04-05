@@ -71,3 +71,20 @@ func (r *UserRepository) GetPasswordByRecordCode(ctx context.Context, record_cod
 
 	return data, nil
 }
+
+func (r *UserRepository) RetreiveRoles(ctx context.Context) ([]byte, error) {
+	conn, err := r.pool.Acquire(ctx)
+	if err != nil {
+		r.logger.Printf("Error acquiring connection. Error: %v.\n", err.Error())
+		return nil, err
+	}
+	defer conn.Release()
+
+	var data []byte
+	err = conn.QueryRow(ctx, "SELECT retreive_roles()").Scan(&data)
+	if err != nil {
+		return nil, err
+	}
+
+	return data, nil
+}

@@ -9,4 +9,5 @@ type IUserUsecase interface {
 	CreateUser(*dto.UserRegistration) ([]byte, error)
 	SetEncryptedPassword(int) (string, error)
 	UserLogin(*dto.UserLogin) (*models.Tokens, error)
+	RetreiveRoles() ([]byte, error)
 }

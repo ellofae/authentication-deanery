@@ -155,3 +155,32 @@ func (u *UserUsecase) UserLogin(user *dto.UserLogin) (*models.Tokens, error) {
 		AccessToken: accessToken,
 	}, nil
 }
+
+func (u *UserUsecase) RetreiveRoles() ([]byte, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*2)
+	defer cancel()
+
+	var err error
+
+	var roles []byte
+
+	errChan := make(chan error, 1)
+	defer close(errChan)
+
+	go func() {
+		roles, err = u.repo.RetreiveRoles(ctx)
+		errChan <- err
+	}()
+
+	select {
+	case <-ctx.Done():
+		return nil, ctx.Err()
+	case err := <-errChan:
+		if err != nil {
+			u.logger.Printf("An error occured in repository while creating user. Error: %v.\n", err.Error())
+			return nil, err
+		}
+	}
+
+	return roles, nil
+}

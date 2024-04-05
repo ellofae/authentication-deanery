@@ -34,8 +34,17 @@ func (h *UserHandler) RegisterHandlers(mux *http.ServeMux) {
 		url_parts := strings.Split(parsed_url, "/")
 
 		switch r.Method {
+		case http.MethodGet:
+			if len(url_parts) == 1 && url_parts[0] == "roles" {
+				err = h.handleExistingRoles(w, r)
+				if err != nil {
+					http.Error(w, fmt.Sprintf("Unable to retreive existing roles. Error: %v.\n", err.Error()), http.StatusInternalServerError)
+					return
+				}
+
+				return
+			}
 		case http.MethodPost:
-			// endpoint /api/signup
 			if len(url_parts) == 1 && url_parts[0] == "signup" {
 				err = h.handleUserCreation(w, r)
 				if err != nil {
@@ -124,7 +133,22 @@ func (h *UserHandler) handleUserLogin(w http.ResponseWriter, r *http.Request) er
 		return err
 	}
 
-	w.WriteHeader(http.StatusCreated)
+	w.WriteHeader(http.StatusOK)
+	w.Write(json_data)
+	return nil
+}
+
+func (h *UserHandler) handleExistingRoles(w http.ResponseWriter, r *http.Request) error {
+	w.Header().Add("Content-Type", "application/json")
+
+	var err error
+
+	json_data, err := h.usecase.RetreiveRoles()
+	if err != nil {
+		return err
+	}
+
+	w.WriteHeader(http.StatusOK)
 	w.Write(json_data)
 	return nil
 }

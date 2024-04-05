@@ -10,4 +10,5 @@ type IUserRepository interface {
 	CreateUser(context.Context, *dto.UserRegistration) ([]byte, error)
 	SetEncryptedPassword(context.Context, int, string) error
 	GetPasswordByRecordCode(context.Context, int) ([]byte, error)
+	RetreiveRoles(context.Context) ([]byte, error)
 }
