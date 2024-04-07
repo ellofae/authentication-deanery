@@ -2,7 +2,6 @@ package middleware
 
 import (
 	"errors"
-	"fmt"
 	"strconv"
 	"time"
 
@@ -11,10 +10,10 @@ import (
 )
 
 type AccessTokenData struct {
-	Expiry   int64
-	IssuedAt int64
-	UserID   string
-	State    string
+	Expiry     int64
+	IssuedAt   int64
+	RecordCode string
+	State      string
 }
 
 var jwtSecretKey string
@@ -42,32 +41,4 @@ func GenerateAccessToken(record_code int) (string, error) {
 	}
 
 	return access_token, nil
-}
-
-func ParseToken(tokenString string) (*AccessTokenData, error) {
-	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
-		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
-		}
-
-		return []byte(jwtSecretKey), nil
-	})
-
-	if err != nil {
-		return nil, fmt.Errorf("unable to parse token: %w", err)
-	}
-
-	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
-		expiry := claims["expiry"].(float64)
-		issued_at := claims["issued_at"].(float64)
-
-		return &AccessTokenData{
-			Expiry:   int64(expiry),
-			IssuedAt: int64(issued_at),
-			UserID:   claims["record_code"].(string),
-			State:    claims["state"].(string),
-		}, nil
-	} else {
-		return nil, err
-	}
 }
