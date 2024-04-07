@@ -94,6 +94,16 @@ func (h *UserHandler) handleUserCreation(w http.ResponseWriter, r *http.Request)
 	}
 	createdUser.Password = generatedPassword
 
+	if err := h.usecase.SendPassword(&dto.EmailForm{
+		UserName:          createdUser.UserName,
+		Email:             createdUser.Email,
+		Phone:             createdUser.Phone,
+		GeneratedPassword: generatedPassword,
+		Status:            createdUser.UserStatus,
+	}); err != nil {
+		return err
+	}
+
 	response := &dto.UserCreatedResponse{
 		UserName:   createdUser.UserName,
 		Email:      createdUser.Email,

@@ -15,6 +15,7 @@ import (
 	"github.com/ellofae/authentication-deanery/internal/domain/usecase"
 	"github.com/ellofae/authentication-deanery/internal/models"
 	"github.com/ellofae/authentication-deanery/migrations/initialization"
+	"github.com/ellofae/authentication-deanery/pkg/gist"
 	"github.com/ellofae/authentication-deanery/pkg/logger"
 	"github.com/ellofae/authentication-deanery/pkg/postgres"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -43,6 +44,12 @@ func establishHandlers(mux *http.ServeMux, connPool *pgxpool.Pool, cfg *config.C
 	user_usecase := usecase.NewUserUsecase(user_repository, &models.CfgUsecaseData{
 		PasswordLength:   castPasswordLengthCgfTypes(cfg.Encryption.PasswordLength),
 		AesEncryptionKey: cfg.Encryption.AesEncryptionKey,
+		SmtpService: &models.SMTPService{
+			cfg.EmailService.SMTPEmail,
+			cfg.EmailService.SMTPPassword,
+			cfg.EmailService.SMTPService,
+			cfg.EmailService.SMTPAddress,
+		},
 	})
 	user_handler := handler.NewUserHandler(user_usecase)
 
@@ -54,6 +61,12 @@ func main() {
 	cfg := config.ParseConfig(config.ConfigureViper())
 	ctx := context.Background()
 
+	err := gist.FetchGistData(cfg.Gist.Url)
+	if err != nil {
+		logger.Printf("Unable to read the gist github file, %v\n", err)
+		os.Exit(1)
+	}
+
 	connPool := postgres.OpenPoolConnection(ctx, cfg, postgres.GetPoolParseConfig(cfg))
 	if err := connPool.Ping(ctx); err != nil {
 		logger.Printf("Unable to ping the database connection. Error: %v.\n", err.Error())
@@ -61,7 +74,7 @@ func main() {
 	}
 	postgres.RunMigrationsUp(ctx, cfg)
 
-	err := initialization.InitializeDatabse(connPool)
+	err = initialization.InitializeDatabse(connPool)
 	if err != nil {
 		os.Exit(1)
 	}

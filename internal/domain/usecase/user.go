@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"net/smtp"
+	"net/textproto"
 	"time"
 
 	"github.com/ellofae/authentication-deanery/internal/controller/middleware"
@@ -11,7 +13,9 @@ import (
 	"github.com/ellofae/authentication-deanery/internal/dto"
 	"github.com/ellofae/authentication-deanery/internal/models"
 	"github.com/ellofae/authentication-deanery/internal/utils"
+	"github.com/ellofae/authentication-deanery/pkg/gist"
 	"github.com/ellofae/authentication-deanery/pkg/logger"
+	"github.com/jordan-wright/email"
 )
 
 type UserUsecase struct {
@@ -183,4 +187,22 @@ func (u *UserUsecase) RetreiveRoles() ([]byte, error) {
 	}
 
 	return roles, nil
+}
+
+func (u *UserUsecase) SendPassword(user *dto.EmailForm) error {
+	e := &email.Email{
+		To:      []string{user.Email},
+		From:    fmt.Sprintf(gist.GistText.From_message, u.cfgUsecase.SmtpService.SmtpEmail),
+		Subject: gist.GistText.Subject_message,
+		Text:    []byte(fmt.Sprintf(gist.GistText.Email_message, user.UserName, user.Status, user.GeneratedPassword)),
+		// HTML:    []byte("<h1>Fancy HTML is supported, too!</h1>"),
+		Headers: textproto.MIMEHeader{},
+	}
+
+	if err := e.Send(u.cfgUsecase.SmtpService.SmtpAddress, smtp.PlainAuth("", u.cfgUsecase.SmtpService.SmtpEmail, u.cfgUsecase.SmtpService.SmtpPassword, u.cfgUsecase.SmtpService.SmtpService)); err != nil {
+		u.logger.Printf("error shile sending: %v\n", err)
+		return err
+	}
+
+	return nil
 }

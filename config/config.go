@@ -37,6 +37,17 @@ type Config struct {
 	Authentication struct {
 		JWTSecretKey string `yaml:"jwtSecretKey"`
 	} `yaml:"Authentication"`
+
+	EmailService struct {
+		SMTPEmail    string `yaml:"smtpEmail"`
+		SMTPPassword string `yaml:"smtpPassword"`
+		SMTPService  string `yaml:"smtpService"`
+		SMTPAddress  string `yaml:"smtpAddress"`
+	} `yaml:"EmailService"`
+
+	Gist struct {
+		Url string
+	} `yaml:"Gist"`
 }
 
 func ConfigureViper() *viper.Viper {

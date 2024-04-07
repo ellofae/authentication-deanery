@@ -10,4 +10,5 @@ type IUserUsecase interface {
 	SetEncryptedPassword(int) (string, error)
 	UserLogin(*dto.UserLogin) (*models.Tokens, error)
 	RetreiveRoles() ([]byte, error)
+	SendPassword(*dto.EmailForm) error
 }

@@ -24,8 +24,17 @@ UserService:
 
 Encryption:
   passwordLength: '14'
-  aesEncryptionKey: 'supersecretaesencryptionkeyhashd'
+  aesEncryptionKey: ''
 
 Authentication:
   jwtSecretToken: 'secret'
+
+EmailService:
+  smtpEmail: ''
+  smtpPassword: ''
+  smtpService: ''
+  smtpAddress: ''
+
+Gist:
+  url: ''
 ```
