@@ -31,3 +31,8 @@ type UserLogin struct {
 	RecordCode int    `json:"record_code"`
 	Password   string `json:"password"`
 }
+
+type UserInfo struct {
+	Passoword string `json:"password"`
+	Status    string `json:"status"`
+}

@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/smtp"
@@ -122,13 +123,13 @@ func (u *UserUsecase) UserLogin(user *dto.UserLogin) (*models.Tokens, error) {
 		return nil, err
 	}
 
-	var stored_password []byte
+	var json_data []byte
 
 	errChan := make(chan error, 1)
 	defer close(errChan)
 
 	go func() {
-		stored_password, err = u.repo.GetPasswordByRecordCode(ctx, user.RecordCode)
+		json_data, err = u.repo.GetPasswordByRecordCode(ctx, user.RecordCode)
 		errChan <- err
 	}()
 
@@ -142,7 +143,12 @@ func (u *UserUsecase) UserLogin(user *dto.UserLogin) (*models.Tokens, error) {
 		}
 	}
 
-	compareResult, err := utils.ComparePasswords(user.Password, string(stored_password), u.cfgUsecase.AesEncryptionKey)
+	userInfo := &dto.UserInfo{}
+	if err = json.Unmarshal(json_data, userInfo); err != nil {
+		return nil, err
+	}
+
+	compareResult, err := utils.ComparePasswords(user.Password, userInfo.Passoword, u.cfgUsecase.AesEncryptionKey)
 	if err != nil {
 		return nil, err
 	}
@@ -151,7 +157,7 @@ func (u *UserUsecase) UserLogin(user *dto.UserLogin) (*models.Tokens, error) {
 		return nil, fmt.Errorf("wrong password for the passed record code")
 	}
 
-	accessToken, err := middleware.GenerateAccessToken(user.RecordCode)
+	accessToken, err := middleware.GenerateAccessToken(user.RecordCode, userInfo.Status)
 	if err != nil {
 		return nil, err
 	}
