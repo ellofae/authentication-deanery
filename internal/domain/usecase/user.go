@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/smtp"
 	"net/textproto"
+	"strconv"
 	"time"
 
 	"github.com/ellofae/authentication-deanery/internal/controller/middleware"
@@ -194,8 +195,7 @@ func (u *UserUsecase) SendPassword(user *dto.EmailForm) error {
 		To:      []string{user.Email},
 		From:    fmt.Sprintf(gist.GistText.From_message, u.cfgUsecase.SmtpService.SmtpEmail),
 		Subject: gist.GistText.Subject_message,
-		Text:    []byte(fmt.Sprintf(gist.GistText.Email_message, user.UserName, user.Status, user.GeneratedPassword)),
-		// HTML:    []byte("<h1>Fancy HTML is supported, too!</h1>"),
+		Text:    []byte(fmt.Sprintf(gist.GistText.Email_message, user.UserName, user.Status, strconv.Itoa(user.Code), user.GeneratedPassword)),
 		Headers: textproto.MIMEHeader{},
 	}
 

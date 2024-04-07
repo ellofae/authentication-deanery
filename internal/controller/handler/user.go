@@ -98,6 +98,7 @@ func (h *UserHandler) handleUserCreation(w http.ResponseWriter, r *http.Request)
 		UserName:          createdUser.UserName,
 		Email:             createdUser.Email,
 		Phone:             createdUser.Phone,
+		Code:              createdUser.RecordCode,
 		GeneratedPassword: generatedPassword,
 		Status:            createdUser.UserStatus,
 	}); err != nil {
