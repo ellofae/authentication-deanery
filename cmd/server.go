@@ -83,7 +83,7 @@ func main() {
 	readTimeout, _ := strconv.Atoi(cfg.UserService.ReadTimeout)
 	writeTimeout, _ := strconv.Atoi(cfg.UserService.WriteTimeout)
 
-	middleware.InitJWTSecretKey(cfg.Authentication.JWTSecretKey)
+	middleware.InitJWTSecretKey(cfg.Authentication.JwtSecretToken)
 
 	serveMux := http.NewServeMux()
 	establishHandlers(serveMux, connPool, cfg)

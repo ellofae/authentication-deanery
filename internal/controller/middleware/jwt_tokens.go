@@ -41,6 +41,5 @@ func GenerateAccessToken(record_code int, role string) (string, error) {
 		logger.Print("Unable to generate an access token")
 		return "", errors.New("unable to generate an access token")
 	}
-
 	return access_token, nil
 }

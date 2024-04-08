@@ -35,7 +35,7 @@ type Config struct {
 	} `yaml:"Encryption"`
 
 	Authentication struct {
-		JWTSecretKey string `yaml:"jwtSecretKey"`
+		JwtSecretToken string `yaml:"jwtSecretToken"`
 	} `yaml:"Authentication"`
 
 	EmailService struct {
