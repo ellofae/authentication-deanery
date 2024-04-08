@@ -212,3 +212,32 @@ func (u *UserUsecase) SendPassword(user *dto.EmailForm) error {
 
 	return nil
 }
+
+func (u *UserUsecase) GetUsername(code *dto.RecordCode) ([]byte, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*2)
+	defer cancel()
+
+	var err error
+
+	var userInfo []byte
+
+	errChan := make(chan error, 1)
+	defer close(errChan)
+
+	go func() {
+		userInfo, err = u.repo.GetUsername(ctx, code)
+		errChan <- err
+	}()
+
+	select {
+	case <-ctx.Done():
+		return nil, ctx.Err()
+	case err := <-errChan:
+		if err != nil {
+			u.logger.Printf("An error occured in repository while creating user. Error: %v.\n", err.Error())
+			return nil, err
+		}
+	}
+
+	return userInfo, nil
+}

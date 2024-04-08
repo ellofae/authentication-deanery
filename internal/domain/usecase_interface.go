@@ -11,4 +11,5 @@ type IUserUsecase interface {
 	UserLogin(*dto.UserLogin) (*models.Tokens, error)
 	RetreiveRoles() ([]byte, error)
 	SendPassword(*dto.EmailForm) error
+	GetUsername(*dto.RecordCode) ([]byte, error)
 }
