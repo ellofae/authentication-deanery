@@ -1,15 +1,15 @@
 package dto
 
 type UserRegistration struct {
-	UserName   string `json:"user_name" validate:"required,min=1,max=20"`
-	Email      string `json:"email" validate:"required,min=1,max=20,email"`
+	UserName   string `json:"user_name" validate:"required,min=1"`
+	Email      string `json:"email" validate:"required,min=1,email"`
 	Phone      string `json:"phone" validate:"required,e164"`
 	UserStatus string `json:"user_status" validate:"required"`
 }
 
 type UserCreated struct {
-	UserName     string `json:"user_name" validate:"required,min=1,max=20"`
-	Email        string `json:"email" validate:"required,min=1,max=20,email"`
+	UserName     string `json:"user_name" validate:"required,min=1"`
+	Email        string `json:"email" validate:"required,min=1,email"`
 	Phone        string `json:"phone" validate:"required,e164"`
 	Credentials  int    `json:"credentials"`
 	RecordCode   int    `json:"record_code"`
@@ -19,8 +19,8 @@ type UserCreated struct {
 }
 
 type UserCreatedResponse struct {
-	UserName   string `json:"user_name" validate:"required,min=1,max=20"`
-	Email      string `json:"email" validate:"required,min=1,max=20,email"`
+	UserName   string `json:"user_name" validate:"required,min=1"`
+	Email      string `json:"email" validate:"required,min=1,email"`
 	Phone      string `json:"phone" validate:"required,e164"`
 	RecordCode int    `json:"record_code"`
 	Password   string `json:"password"`
