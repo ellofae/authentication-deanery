@@ -11,7 +11,7 @@ DECLARE
 BEGIN
     IF EXISTS (SELECT 1 FROM information_schema.tables 
     WHERE table_schema = 'public' AND table_name = 'credentials') THEN
-        SELECT user_password INTO received_password FROM credentials WHERE record_code = code RETURNING id INTO credentials_id;
+        SELECT user_password, id INTO received_password, credentials_id FROM credentials WHERE record_code = code;
     ELSE
         RAISE EXCEPTION 'Relation credentials is not present.';
     END IF;
@@ -20,7 +20,7 @@ BEGIN
     WHERE table_schema = 'public' AND table_name = 'users') THEN
         SELECT user_status INTO received_status FROM users WHERE credentials = credentials_id;
     ELSE
-        RAISE EXCEPTION 'Relation credentials is not present.';
+        RAISE EXCEPTION 'Relation users is not present.';
     END IF;
 
     result := json_build_object('password', received_password, 'status', received_status);
